@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:habit_app/screens/HomeScreen.dart';
 
 class GoalDateSelectionScreen extends StatefulWidget {
   final List<Map<String, dynamic>> selectedGoals;
@@ -11,7 +12,6 @@ class GoalDateSelectionScreen extends StatefulWidget {
 }
 
 class _GoalDateSelectionScreenState extends State<GoalDateSelectionScreen> {
-  // Her hedef için seçilen başlangıç ve bitiş tarihlerini saklamak için bir harita
   final Map<String, DateTime?> startDates = {};
   final Map<String, DateTime?> endDates = {};
 
@@ -34,6 +34,26 @@ class _GoalDateSelectionScreenState extends State<GoalDateSelectionScreen> {
     }
   }
 
+  void _startGoal() {
+    if (startDates.isNotEmpty && endDates.isNotEmpty) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomeScreen(
+            selectedGoals: widget.selectedGoals,
+            startDates: startDates,
+            endDates: endDates,
+          ),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text("Lütfen başlangıç ve bitiş tarihlerini seçiniz")),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,10 +66,7 @@ class _GoalDateSelectionScreenState extends State<GoalDateSelectionScreen> {
             Center(
               child: Text(
                 'Now, select starting date',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
             ),
             SizedBox(height: 20),
@@ -65,9 +82,7 @@ class _GoalDateSelectionScreenState extends State<GoalDateSelectionScreen> {
                         leading: Icon(goal['icon'], color: goal['color']),
                         title: Text(
                           goal['title'],
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         subtitle: Text("Choose a start and end date"),
                       ),
@@ -102,7 +117,6 @@ class _GoalDateSelectionScreenState extends State<GoalDateSelectionScreen> {
                 },
               ),
             ),
-            //buton tasarimi
             Center(
               child: Container(
                 decoration: BoxDecoration(
@@ -114,9 +128,7 @@ class _GoalDateSelectionScreenState extends State<GoalDateSelectionScreen> {
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: ElevatedButton(
-                  onPressed: () {
-                    // İşlem bittiğinde yapılacak işlemler buraya
-                  },
+                  onPressed: _startGoal,
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                     backgroundColor: Colors.transparent,
