@@ -27,15 +27,40 @@ class _GoalDateSelectionScreenState extends State<GoalDateSelectionScreen> {
       setState(() {
         if (isStart) {
           startDates[goalTitle] = picked;
+
+          // Başlangıç tarihinden önceki bitiş tarihini temizle
+          if (endDates[goalTitle] != null &&
+              endDates[goalTitle]!.isBefore(picked)) {
+            endDates[goalTitle] = null;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                  content: Text(
+                      "Bitiş tarihi başlangıç tarihinden sonra olmalıdır")),
+            );
+          }
         } else {
-          endDates[goalTitle] = picked;
+          // Bitiş tarihinin başlangıç tarihinden sonra olduğundan emin olun
+          if (startDates[goalTitle] != null &&
+              picked.isBefore(startDates[goalTitle]!)) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                  content: Text(
+                      "Bitiş tarihi başlangıç tarihinden sonra olmalıdır")),
+            );
+          } else {
+            endDates[goalTitle] = picked;
+          }
         }
       });
     }
   }
 
   void _startGoal() {
-    if (startDates.isNotEmpty && endDates.isNotEmpty) {
+    // Başlangıç ve bitiş tarihlerinin seçildiğinden emin olun
+    bool allDatesSelected = widget.selectedGoals.every((goal) =>
+        startDates[goal['title']] != null && endDates[goal['title']] != null);
+
+    if (allDatesSelected) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -49,7 +74,7 @@ class _GoalDateSelectionScreenState extends State<GoalDateSelectionScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text("Lütfen başlangıç ve bitiş tarihlerini seçiniz")),
+            content: Text("Lütfen tüm başlangıç ve bitiş tarihlerini seçiniz")),
       );
     }
   }

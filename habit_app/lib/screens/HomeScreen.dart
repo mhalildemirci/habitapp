@@ -1,6 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:habit_app/screens/cancel_goal_screen.dart';
+import 'package:intl/intl.dart';
+
+String _formatDate(DateTime date) {
+  return DateFormat('dd/MM/yyyy').format(date);
+}
 
 class HomeScreen extends StatefulWidget {
   final List<Map<String, dynamic>> selectedGoals;
@@ -18,6 +24,54 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  void _showMenu() {
+    showMenu(
+      context: context,
+      position: RelativeRect.fromLTRB(
+          100, MediaQuery.of(context).size.height - 180, 100, 100),
+      items: [
+        PopupMenuItem(
+          value: 'dark_mode',
+          child: Row(
+            children: [
+              Icon(Icons.dark_mode, color: Color(0xFF04CBFC)),
+              SizedBox(width: 8),
+              Text('Dark Mode'),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          value: 'profile',
+          child: Row(
+            children: [
+              Icon(Icons.person, color: Color(0xFF04CBFC)),
+              SizedBox(width: 8),
+              Text('Profile'),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          value: 'settings',
+          child: Row(
+            children: [
+              Icon(Icons.settings, color: Color(0xFF04CBFC)),
+              SizedBox(width: 8),
+              Text('Settings'),
+            ],
+          ),
+        ),
+      ],
+    ).then((value) {
+      if (value == 'dark_mode') {
+        // Dark mode action
+      } else if (value == 'profile') {
+        // Profile action
+      } else if (value == 'settings') {
+        // Settings action
+      }
+    });
+  }
+
   Timer? _timer;
   int _selectedIndex = 1;
 
@@ -77,57 +131,72 @@ class _HomeScreenState extends State<HomeScreen> {
                     widget.startDates[goal['title']],
                     widget.endDates[goal['title']],
                   );
-                  return Container(
-                    margin: EdgeInsets.only(bottom: 12),
-                    padding: EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: goal['color'].withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(goal['icon'], color: goal['color'], size: 30),
-                            SizedBox(width: 12),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  goal['title'],
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text(
-                                  'Start: ${widget.startDates[goal['title']]?.toLocal()}\nEnd: ${widget.endDates[goal['title']]?.toLocal()}',
-                                  style: TextStyle(
-                                    color: Colors.black54,
-                                  ),
-                                ),
-                                Text(
-                                  _formatRemainingTime(
-                                      widget.endDates[goal['title']]),
-                                  style: TextStyle(color: Colors.redAccent),
-                                ),
-                              ],
-                            ),
-                          ],
+                  return GestureDetector(
+                    // Hedef kartına tıklandığında CancelGoalScreen'e yönlendirme
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CancelGoalScreen(
+                            goalTitle: goal['title'],
+                            //goalImage: goal[goal], // Burada görsel yolunu geçin
+                            endDate: widget.endDates[goal['title']],
+                          ),
                         ),
-                        Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            CircularProgressIndicator(
-                              value: progress,
-                              color: goal['color'],
-                              backgroundColor: goal['color'].withOpacity(0.3),
-                            ),
-                            Text('${(progress * 100).toInt()}%'),
-                          ],
-                        ),
-                      ],
+                      );
+                    },
+
+                    child: Container(
+                      margin: EdgeInsets.only(bottom: 12),
+                      padding: EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: goal['color'].withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(goal['icon'],
+                                  color: goal['color'], size: 30),
+                              SizedBox(width: 12),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    goal['title'],
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Start: ${widget.startDates[goal['title']] != null ? _formatDate(widget.startDates[goal['title']]!) : 'N/A'}\nEnd: ${widget.endDates[goal['title']] != null ? _formatDate(widget.endDates[goal['title']]!) : 'N/A'}',
+                                    style: TextStyle(color: Colors.black54),
+                                  ),
+                                  Text(
+                                    _formatRemainingTime(
+                                        widget.endDates[goal['title']]),
+                                    style: TextStyle(color: Colors.redAccent),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              CircularProgressIndicator(
+                                value: progress,
+                                color: goal['color'],
+                                backgroundColor: goal['color'].withOpacity(0.3),
+                              ),
+                              Text('${(progress * 100).toInt()}%'),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 }).toList(),
@@ -193,6 +262,10 @@ class _HomeScreenState extends State<HomeScreen> {
         setState(() {
           _selectedIndex = index;
         });
+        // Menü simgesine tıklandığında `_showMenu` fonksiyonunu çağırıyoruz.
+        if (index == 0) {
+          _showMenu();
+        }
       },
       child: Container(
         width: 60,

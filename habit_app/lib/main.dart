@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'screens/welcome_screen.dart'; // WelcomeScreen dosyasını dahil ediyoruz.
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(MyApp());
 }
 
